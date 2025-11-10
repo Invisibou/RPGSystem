@@ -1,7 +1,3 @@
 <?php
 
-Class Combat{
-    
-}
-
->
+class Combat {}

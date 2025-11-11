@@ -2,30 +2,30 @@
 
 class Dice
 {
-    public static function lancar(int $lados)
+    public static function roll(int $sides): int
     {
-        if ($lados < 2) {
-            return "Escolha um dado com no mínimo 2 lados";
+        if ($sides < 2) {
+            throw new InvalidArgumentException("The die must have at least 2 sides.");
         } else {
-            $num_aleatorio = rand(1, $lados);
-            return $num_aleatorio;
+            $randomNumber = rand(1, $sides);
+            return $randomNumber;
         }
     }
 
-    public static function lancarMultiplos(int $lados, int $vezes)
+    public static function rollMultiple(int $sides, int $times)
     {
-        $soma = 0;
-        if ($vezes < 1) {
-            return "Digite um número válido para as tentativas <br>";
+        $sum = 0;
+        if ($times < 1) {
+            throw new InvalidArgumentException("The number of attempts must be at least 1.");
         } else {
-            for ($i = 0; $i < $vezes; $i++) {
-                $soma += Dice::lancar($lados);
+            for ($i = 0; $i < $times; $i++) {
+                $sum += self::roll($sides);
             }
-            return $soma;
+            return $sum;
         }
     }
 
-    public static function gerarResultado(int $min, int $max): int
+    public static function generateResult(int $min, int $max): int
     {
         if ($min > $max) {
             $temp = $min;

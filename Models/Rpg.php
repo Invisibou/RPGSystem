@@ -6,6 +6,7 @@ class Rpg
     private string $tableName;
     private string $description;
     private array $combatLog;
+    private string $accessCode;
 
     public function __construct(string $tableName, string $description)
     {
@@ -35,6 +36,11 @@ class Rpg
         return $this->combatLog;
     }
 
+    public function getAccessCode(): ?string
+    {
+        return $this->accessCode;
+    }
+
     public function setId(int $id): void
     {
         $this->id = $id;
@@ -53,5 +59,11 @@ class Rpg
     public function setCombatLog(array $log): void
     {
         $this->combatLog = $log;
+    }
+
+
+    public function setAccessCode(string $code): void
+    {
+        $this->accessCode = $code;
     }
 }

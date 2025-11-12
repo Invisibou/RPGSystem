@@ -11,6 +11,7 @@ class RpgRepository
         $this->pdo = $pdo;
     }
 
+
     public function getById(int $id): ?Rpg
     {
         $sql = "SELECT * FROM rpg_tables WHERE id = ?";
@@ -27,7 +28,33 @@ class RpgRepository
         $rpg = new Rpg($data['name'], $data['description']);
         $rpg->setId((int)$data['id']);
 
+        $rpg->setAccessCode($data['access_code']);
+
         // Decodifica o JSON para transformar em array associativo
+        $logArray = json_decode($data['combat_log'], true);
+        $rpg->setCombatLog(is_array($logArray) ? $logArray : []);
+
+        return $rpg;
+    }
+
+    public function getByAccessCode(string $code): ?Rpg
+    {
+        // SQL usa a coluna 'access_code'
+        $sql = "SELECT * FROM rpg_tables WHERE access_code = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$code]);
+
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$data) {
+            return null;
+        }
+
+        // Hidratação (igual ao getById, mas agora com o Access Code)
+        $rpg = new Rpg($data['name'], $data['description']);
+        $rpg->setId((int)$data['id']);
+        $rpg->setAccessCode($data['access_code']); // Define o código lido
+
         $logArray = json_decode($data['combat_log'], true);
         $rpg->setCombatLog(is_array($logArray) ? $logArray : []);
 
@@ -36,7 +63,12 @@ class RpgRepository
 
     public function create(Rpg $rpg): bool
     {
-        $sql = "INSERT INTO rpg_tables (name, description, combat_log) VALUES (?, ?, ?)";
+
+        // Cria o código de acesso único para o jogar entrar na mesa específica
+        $accessCode = strtoupper(substr(uniqid(), -6));
+        $rpg->setAccessCode($accessCode);
+
+        $sql = "INSERT INTO rpg_tables (name, description, combat_log, access_code) VALUES (?, ?, ?, ?)";
 
         // Transforma o log de combate em JSON para armazenar no BD
         $logJson = json_encode($rpg->getCombatLog());
@@ -46,7 +78,8 @@ class RpgRepository
         $success = $stmt->execute([
             $rpg->getTableName(),
             $rpg->getDescription(),
-            $logJson
+            $logJson,
+            $accessCode
         ]);
 
         if ($success) {

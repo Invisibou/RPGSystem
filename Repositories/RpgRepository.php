@@ -1,6 +1,6 @@
 <?php
 
-require_once 'Rpg.php';
+require_once '../../Models/Rpg.php';
 
 class RpgRepository
 {
@@ -10,7 +10,6 @@ class RpgRepository
     {
         $this->pdo = $pdo;
     }
-
 
     public function getById(int $id): ?Rpg
     {
@@ -24,17 +23,8 @@ class RpgRepository
             return null;
         }
 
-        // Fazendo a hidratação do objeto (Transformar a linha do BD para um objeto php)
-        $rpg = new Rpg($data['name'], $data['description']);
-        $rpg->setId((int)$data['id']);
-
-        $rpg->setAccessCode($data['access_code']);
-
-        // Decodifica o JSON para transformar em array associativo
-        $logArray = json_decode($data['combat_log'], true);
-        $rpg->setCombatLog(is_array($logArray) ? $logArray : []);
-
-        return $rpg;
+        // Chama o método privado de hidratação
+        return $this->hydrateRpg($data);
     }
 
     public function getByAccessCode(string $code): ?Rpg
@@ -50,21 +40,25 @@ class RpgRepository
             return null;
         }
 
-        // Hidratação (igual ao getById, mas agora com o Access Code)
-        $rpg = new Rpg($data['name'], $data['description']);
-        $rpg->setId((int)$data['id']);
-        $rpg->setAccessCode($data['access_code']); // Define o código lido
-
-        $logArray = json_decode($data['combat_log'], true);
-        $rpg->setCombatLog(is_array($logArray) ? $logArray : []);
-
-        return $rpg;
+        // Chama o método privado de hidratação
+        return $this->hydrateRpg($data);
     }
 
-    public function create(Rpg $rpg): bool
+    public function save(Rpg $rpg): bool
     {
+        // Se o ID for nulo, o objeto é novo e precisa ser inserido
+        if ($rpg->getId() === null) {
+            return $this->create($rpg);
+        } else {
+            // Se o ID existe, o objeto já está no banco e precisa ser atualizado
+            return $this->update($rpg);
+        }
+    }
 
-        // Cria o código de acesso único para o jogar entrar na mesa específica
+    // Tornamos o método 'create' privado para forçar o uso do save()
+    private function create(Rpg $rpg): bool
+    {
+        // Cria o código de acesso único para o jogador entrar na mesa específica
         $accessCode = strtoupper(substr(uniqid(), -6));
         $rpg->setAccessCode($accessCode);
 
@@ -79,7 +73,8 @@ class RpgRepository
             $rpg->getTableName(),
             $rpg->getDescription(),
             $logJson,
-            $accessCode
+            $accessCode,
+            $rpg->getBackgroundMapUrl()
         ]);
 
         if ($success) {
@@ -89,10 +84,10 @@ class RpgRepository
         return $success;
     }
 
-    public function update(Rpg $rpg): bool
+    // Tornamos o método 'update' privado para forçar o uso do save()
+    private function update(Rpg $rpg): bool
     {
-
-        $sql = "UPDATE rpg_tables SET name = ?, description = ?, combat_log = ? WHERE id = ?";
+        $sql = "UPDATE rpg_tables SET name = ?, description = ?, combat_log = ?, background_map_url = ? WHERE id = ?";
 
         $logJson = json_encode($rpg->getCombatLog());
 
@@ -102,7 +97,24 @@ class RpgRepository
             $rpg->getTableName(),
             $rpg->getDescription(),
             $logJson,
+            $rpg->getBackgroundMapUrl(),
             $rpg->getId()
         ]);
+    }
+
+    // Faz a hidratação do objeto Rpg a partir de um array de dados do banco.
+    private function hydrateRpg(array $data): Rpg
+    {
+        // Fazendo a hidratação do objeto (Transformar a linha do BD para um objeto php)
+        $rpg = new Rpg($data['name'], $data['description']);
+        $rpg->setId((int)$data['id']);
+
+        $rpg->setAccessCode($data['access_code']);
+
+        // Decodifica o JSON para transformar em array associativo
+        $logArray = json_decode($data['combat_log'], true);
+        $rpg->setCombatLog(is_array($logArray) ? $logArray : []);
+
+        return $rpg;
     }
 }

@@ -7,6 +7,7 @@ class Rpg
     private string $description;
     private array $combatLog;
     private string $accessCode;
+    private ?string $backgroundMapUrl;
 
     public function __construct(string $tableName, string $description)
     {
@@ -41,6 +42,11 @@ class Rpg
         return $this->accessCode;
     }
 
+    public function getBackgroundMapUrl(): ?string
+    {
+        return $this->backgroundMapUrl;
+    }
+
     public function setId(int $id): void
     {
         $this->id = $id;
@@ -65,5 +71,10 @@ class Rpg
     public function setAccessCode(string $code): void
     {
         $this->accessCode = $code;
+    }
+
+    public function setBackgroundMapUrl(string $url): void
+    {
+        $this->backgroundMapUrl = $url;
     }
 }

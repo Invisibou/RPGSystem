@@ -26,7 +26,8 @@ try {
         description VARCHAR(500) NULL,
         combat_log JSON NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        access_code VARCHAR(10) NOT NULL UNIQUE
+        access_code VARCHAR(10) NOT NULL UNIQUE,
+        background_map_url VARCHAR(2048) NULL
      )";
 
     // Executa o comando SQL

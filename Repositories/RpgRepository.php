@@ -62,7 +62,7 @@ class RpgRepository
         $accessCode = strtoupper(substr(uniqid(), -6));
         $rpg->setAccessCode($accessCode);
 
-        $sql = "INSERT INTO rpg_tables (name, description, combat_log, access_code) VALUES (?, ?, ?, ?)";
+        $sql = "INSERT INTO rpg_tables (name, description, combat_log, access_code, background_map_url) VALUES (?, ?, ?, ?, ?)";
 
         // Transforma o log de combate em JSON para armazenar no BD
         $logJson = json_encode($rpg->getCombatLog());

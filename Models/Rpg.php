@@ -15,6 +15,7 @@ class Rpg
         $this->tableName = $tableName;
         $this->description = $description;
         $this->combatLog = []; // The log starts empty
+        $this->backgroundMapUrl = null;
     }
 
     public function getId(): ?int

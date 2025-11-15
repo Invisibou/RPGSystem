@@ -16,11 +16,10 @@ $options = [
 try {
     // Conecta ao banco
     $pdo = new PDO($dsn, $user, $pass, $options);
-    echo "✅ Conexão com o banco de dados estabelecida.\n";
 
     // --- SQL para Criar a Tabela ---
     // CREATE TABLE IF NOT EXISTS garante que o script não falhe se a tabela já existir.
-    $sql = "CREATE TABLE IF NOT EXISTS rpg_tables (
+    $sql_rpg_tables = "CREATE TABLE IF NOT EXISTS rpg_tables (
         id INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         description VARCHAR(500) NULL,
@@ -31,11 +30,26 @@ try {
      )";
 
     // Executa o comando SQL
-    $pdo->exec($sql);
+    $pdo->exec($sql_rpg_tables);
 
-    echo "✅ Tabela 'rpg_tables' verificada e criada (se necessário).\n";
+    $sql_characters = "CREATE TABLE IF NOT EXISTS characters (
+        id INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        total_health INT(11) NOT NULL DEFAULT 100,
+        current_health INT(11) NOT NULL DEFAULT 100,
+        total_speed INT(11) NOT NULL DEFAULT 10,
+        total_defense INT(11) NOT NULL DEFAULT 10,
+        damage_bonus INT(11) NOT NULL DEFAULT 0,
+        damage_dice INT(11) NOT NULL DEFAULT 4,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )";
+
+    $pdo->exec($sql_characters);
 } catch (\PDOException $e) {
-    echo "❌ ERRO DE CONEXÃO ou SQL: " . $e->getMessage() . "\n";
+    echo json_encode([
+        'success' => false,
+        'message' => 'Erro de conexão com o BD: ' . $e->getMessage()
+    ]);
     // Para a execução em caso de erro crítico
     die();
 }

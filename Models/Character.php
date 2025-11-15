@@ -2,6 +2,9 @@
 
 class Character
 {
+    // --- ATRIBUTO ADICIONADO PARA O BANCO DE DADOS ---
+    private ?int $id = null;
+
     // Private attributes representing the character's state
     private string $name;
     private int $currentHealth;
@@ -14,7 +17,6 @@ class Character
     private int $damageDice;    // Used for the damage die (D4, D6, etc.)
 
     // --- CONSTRUCTOR ---
-    // Simple: Initializes the character
     public function __construct(string $name, int $totalHealth, int $speed, int $defense, int $damageB, int $damageD)
     {
         $this->name = $name;
@@ -29,46 +31,65 @@ class Character
 
     // --- ACCESS METHODS (GETTERS) ---
 
-    // 1. Called in 'determineInitiative'
+    // MÉTODO NOVO (Necessário para o save() e update())
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
     public function getTotalSpeed(): int
     {
         return $this->totalSpeed;
     }
 
-    // 2. Called in 'executeAttack' (for the Attacker)
     public function getDamageBonus(): int
     {
         return $this->damageBonus;
     }
 
-    // 3. Called in 'executeAttack' (for the Defender)
     public function getTotalDefense(): int
     {
         return $this->totalDefense;
     }
 
-    // 4. Called in 'executeAttack' (for the damage die)
     public function getDamageDice(): int
     {
-        // Returns the number of sides of the damage die (Ex: 6 for 1D6)
         return $this->damageDice;
     }
 
-    // 5. Called at the end of the log
     public function getCurrentHealth(): int
     {
         return $this->currentHealth;
     }
 
-    // 6. Called in the log (attacker's name)
     public function getName(): string
     {
         return $this->name;
     }
 
-    // --- ACTION METHODS ---
+    // MÉTODO NOVO (Necessário para o insert() no Repositório)
+    public function getTotalHealth(): int
+    {
+        return $this->totalHealth;
+    }
 
-    // 7. Called in 'executeAttack' (to apply damage)
+    // --- ACTION & SETTER METHODS ---
+
+    // MÉTODO NOVO (Necessário para hidratação e insert())
+    public function setId(int $id): void
+    {
+        $this->id = $id;
+    }
+
+    // MÉTODO NOVO (Necessário para hidratação)
+    // Define a vida atual (usado ao carregar do banco)
+    public function setCurrentHealth(int $health): void
+    {
+        // Garante que a vida não seja negativa ou maior que o máximo
+        $this->currentHealth = max(0, min($health, $this->totalHealth));
+    }
+
+    // Método de Ação (Usado pelo Combat.php)
     public function receiveDamage(int $damage)
     {
         $this->currentHealth = max(0, $this->currentHealth - $damage);

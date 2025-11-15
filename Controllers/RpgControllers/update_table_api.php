@@ -9,6 +9,7 @@ require_once '../../Repositories/RpgRepository.php';
 $tableId = $_POST['tableId'] ?? null;
 $tableName = $_POST['tableName'] ?? null;
 $description = $_POST['description'] ?? null;
+$backgroundMapUrl = $_POST['backgroundMapUrl'] ?? null;
 
 try {
     if (empty($tableId) || empty($tableName)) {
@@ -25,6 +26,7 @@ try {
 
     $rpgTable->setTableName($tableName);
     $rpgTable->setDescription($description);
+    $rpgTable->setBackgroundMapUrl($backgroundMapUrl);
 
     $success = $rpgRepo->Save($rpgTable);
 
@@ -36,6 +38,7 @@ try {
         'success' => true,
         'message' => "Mesa Atualizada com sucesso",
         'tableId' => $rpgTable->getId(),
+        'url_map' => $rpgTable->getBackgroundMapUrl(),
         'access_code' => $rpgTable->getAccessCode()
     ]);
 } catch (Exception $e) {
